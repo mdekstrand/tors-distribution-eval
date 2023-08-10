@@ -1,0 +1,24 @@
+schema: '2.0'
+stages:
+  ml-1m:
+    cmd: python -m zipfile -e ml-1m.zip .
+    deps:
+    - path: ml-1m.zip
+      md5: c4d9eecfca2ab87c1945afe126590906
+      size: 5917549
+    outs:
+    - path: ml-1m/
+      md5: 82cb2289085c2178418e006f69afc645.dir
+      size: 24905384
+      nfiles: 4
+  ml-25m:
+    cmd: python -m zipfile -e ml-25m.zip .
+    deps:
+    - path: ml-25m.zip
+      md5: 6b51fb2759a8657d3bfcbfc42b592ada
+      size: 261978986
+    outs:
+    - path: ml-25m/
+      md5: 5b3efd91c9cc6cd155a70787b9c2f4cf.dir
+      size: 1156670716
+      nfiles: 7

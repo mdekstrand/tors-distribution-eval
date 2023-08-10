@@ -1,0 +1,86 @@
+schema: '2.0'
+stages:
+  split-ml20m:
+    cmd: python split-data.py -o data-split/ml20m ml20m
+    deps:
+    - path: data/ml-20m/ratings.csv
+      md5: f95d275e0f2edad2391e5ef864a46628
+      size: 533444411
+    params:
+      params.yaml:
+        random.seed: 20220215
+    outs:
+    - path: data-split/ml20m
+      md5: a9e90fc6f4bc21fb1c2944eab3d04c64.dir
+      size: 11954192
+      nfiles: 5
+  split-ml10m:
+    cmd: python split-data.py -o data-split/ml10m ml10m
+    deps:
+    - path: data/ml-10M100K/ratings.dat
+      md5: 3f317698625386f66177629fa5c6b2dc
+      size: 265105635
+    params:
+      params.yaml:
+        random.seed: 20220215
+    outs:
+    - path: data-split/ml10m
+      md5: 22f7fb1f0c5de52d18ddfa5305d8e3d2.dir
+      size: 5881979
+      nfiles: 5
+  split-mlsmall:
+    cmd: python split-data.py -o data-split/mlsmall mlsmall
+    deps:
+    - path: data/ml-latest-small/ratings.csv
+      md5: ac0cf1d26aed3a5b6777a295231976ad
+      size: 2483723
+    params:
+      params.yaml:
+        random.seed: 20220215
+    outs:
+    - path: data-split/mlsmall
+      md5: dcae6b4c64189bdbc5ba53fe8403ae60.dir
+      size: 71726
+      nfiles: 5
+  split-ml100k:
+    cmd: python split-data.py -o data-split/ml100k ml100k
+    deps:
+    - path: data/ml-100k/u.data
+      md5: 6e47046882bad158b0efbb84cd5cb987
+      size: 1979173
+    params:
+      params.yaml:
+        random.seed: 20220215
+    outs:
+    - path: data-split/ml100k
+      md5: e58e5c8cebc5aaf3c4099cd0010c9d14.dir
+      size: 94641
+      nfiles: 5
+  split-ml1m:
+    cmd: python split-data.py -o data-split/ml1m -u 1500 -R 50 ml1m
+    deps:
+    - path: data/ml-1m/ratings.dat
+      md5: a89aa3591bc97d6d4e0c89459ff39362
+      size: 24594131
+    params:
+      params.yaml:
+        random.seed: 20230101
+    outs:
+    - path: data-split/ml1m
+      md5: 6711bb5577ead59221f796a939cb89d3.dir
+      size: 4012507
+      nfiles: 50
+  split-ml25m:
+    cmd: python split-data.py -o data-split/ml25m ml25m
+    deps:
+    - path: data/ml-25m/ratings.csv
+      md5: d463ba41e49011f510bbc0ea5224a169
+      size: 678260987
+    params:
+      params.yaml:
+        random.seed: 20230101
+    outs:
+    - path: data-split/ml25m
+      md5: 7e92758698890a67285bd0772603e1a3.dir
+      size: 13904111
+      nfiles: 5

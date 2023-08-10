@@ -1,0 +1,51 @@
+# This pipeline defines stages that control running and evaluating algorithms
+# We define one stage per data set, using 'foreach' to iterate over the algorithms
+# that we want to run on it.
+#
+# We can't really iterate over Cartesian products very easily in the DVC repetition
+# system, so we do need to repeat a stage for each data set.
+#
+# You can make additional non-repeated stages to run one algorithm on one data set.
+stages:
+  # ml1m-explicit:
+  #   foreach:
+  #     - Bias
+  #     - IIE
+  #     - UUE
+  #     - ALS
+  #   do:
+  #     cmd: python run-algo.py --splits data-split/ml1m -o runs/ml1m-${item} -n 1000 ${item}
+  #     wdir: ..
+  #     deps:
+  #       - data-split/ml1m
+  #     outs:
+  #       - runs/ml1m-${item}
+    
+  ml1m-implicit:
+    foreach:
+      - Pop
+      - III
+      - IALS
+    do:
+      cmd: python run-algo.py --no-predict --splits data-split/ml1m -o runs/ml1m-${item} -n 1000 ${item}
+      wdir: ..
+      deps:
+        - data-split/ml1m
+      outs:
+        - runs/ml1m-${item}
+
+  ml1m-scores:
+    foreach:
+    - Pop
+    - III
+    - IALS
+    do:
+      cmd: python compute-metrics.py ml1m ${item}
+      wdir: ..
+      deps:
+      - compute-metrics.py
+      - lkdemo/metrics.py
+      - data-split/ml1m
+      - runs/ml1m-${item}
+      outs:
+      - runs/ml1m-${item}-scores.parquet

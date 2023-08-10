@@ -1,0 +1,186 @@
+---
+title: Repeated Run Analysis
+jupyter:
+  jupytext:
+    formats: 'ipynb,qmd'
+    text_representation:
+      extension: .qmd
+      format_name: quarto
+      format_version: '1.0'
+      jupytext_version: 1.14.6
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
+---
+
+## Environment and Data
+
+### Software Environment
+
+We're going to start by importing the software packages we need. Python stdlib packages:
+
+```{python}
+from pathlib import Path
+```
+
+PyData packages:
+
+```{python}
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+```
+
+```{python}
+from joblib import Parallel, delayed
+```
+
+LensKit packages:
+
+```{python}
+from lenskit import topn
+```
+
+Local code:
+
+```{python}
+from lkdemo.plotutils import *
+from eval_tables import EvalTable
+from IPython.display import HTML
+```
+
+Set up progress and logging output:
+
+```{python}
+from tqdm.auto import tqdm
+import logging
+import lenskit.util
+
+_log = logging.getLogger('notebook')
+lenskit.util.log_to_notebook()
+tqdm.pandas()
+```
+
+Where do we want output?
+
+```{python}
+fig_dir = init_figs('Repitition')
+print(fig_dir)
+```
+
+### Loading Data
+
+Now let's load the MovieLens data and recommendation outputs.  We can't load all the data into memory at once,
+but we *can* compute the statistics!
+
+```{python}
+run_dir = Path('runs')
+scores = {
+    f.name.split('-')[1]: pd.read_parquet(f) for f in run_dir.glob('*-scores.parquet')
+}
+scores = pd.concat(scores, names=['algo'])
+scores.info()
+```
+
+```{python}
+scores.reset_index(inplace=True)
+scores.algo = scores.algo.astype('category').cat.rename_categories({'III': 'IKNN'})
+scores.head()
+```
+
+And load user data:
+
+```{python}
+ml_dir = Path('data/ml-1m/')
+users = pd.read_table(ml_dir / 'users.dat', sep='::', names=['user', 'gender', 'age', 'occ', 'zip'], engine='python')
+users.set_index('user', inplace=True)
+users.head()
+```
+
+## Basic Distribution
+
+What is the distribution of performance over runs?
+
+```{python}
+run_scores = scores.fillna(0).groupby(['algo', 'run']).mean()
+run_scores.reset_index(inplace=True)
+```
+
+```{python}
+sns.displot(run_scores, x='rbp', row='algo', kde=True, aspect=2, height=2)
+plt.show()
+```
+
+```{python}
+make_plot(
+    run_scores,
+    pn.aes(x='rbp', y=pn.after_stat('density')),
+    pn.stat_density(),
+    pn.geom_histogram(binwidth=0.001),
+    pn.facet_grid('algo ~'),
+    pn.xlab('Mean RBP'),
+    pn.ylab('Density'),
+    width=4.5,
+    height=3.5,
+    file='repetition-dist.png',
+)
+```
+
+We can see that there is variance in the scores, and it is hit and miss whether IKNN or IALS is better.
+
+```{python}
+run_scores.groupby('algo')['rbp'].agg(['mean', 'median', 'min', 'max'])
+```
+
+What is the improvement of IALS over IKNN?
+
+```{python}
+run_ndcg = run_scores.pivot(index='run', columns='algo', values='rbp')
+run_ndcg['IALS-IKNN'] = run_ndcg['IALS'] - run_ndcg['IKNN']
+```
+
+```{python}
+run_ndcg.describe()
+```
+
+Let's look at the distribution:
+
+```{python}
+make_plot(
+    run_ndcg,
+    pn.aes(x='IALS-IKNN'),
+    pn.geom_histogram(binwidth=0.001),
+)
+```
+
+```{python}
+sns.displot(run_ndcg['IALS-IKNN'], kind='ecdf')
+```
+
+## Stability of Gender Improvement
+
+Is the improvement by user gender stable?
+
+```{python}
+aug_scores = scores.join(users['gender'], on='user')
+ag_mean = aug_scores.groupby(['run', 'algo', 'gender'])['rbp'].agg(['mean', 'median'])
+ag_mean.reset_index(inplace=True)
+ag_mean
+```
+
+```{python}
+make_plot(
+    ag_mean,
+    pn.aes(x='mean', color='gender', linetype='gender'),
+    pn.stat_density(),
+    pn.facet_grid('algo ~'),
+    pn.xlab('Mean RBP'),
+    pn.ylab('Density'),
+    width=4.5,
+    height=3.5,
+    file='repetition-gender-dist.png',
+)
+```
+

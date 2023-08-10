@@ -1,0 +1,459 @@
+---
+title: Distribution Case Study — Item Distributions
+jupyter:
+  jupytext:
+    formats: 'ipynb,qmd:quarto'
+    text_representation:
+      extension: .qmd
+      format_name: quarto
+      format_version: '1.0'
+      jupytext_version: 1.14.6
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
+---
+
+This notebook demonstrates item exposure distributions.
+
+## Environment and Data
+
+### Software Environment
+
+We're going to start by importing the software packages we need. Python stdlib packages:
+
+```{python}
+from pathlib import Path
+```
+
+PyData packages:
+
+```{python}
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy import stats
+```
+
+LensKit packages:
+
+```{python}
+from lenskit import topn
+from lkdemo.metrics import discount, test_weight
+```
+
+Local code:
+
+```{python}
+from lkdemo.plotutils import *
+from eval_tables import EvalTable
+from IPython.display import HTML
+```
+
+Set up progress and logging output:
+
+```{python}
+from tqdm.auto import tqdm
+import logging
+import lenskit.util
+
+_log = logging.getLogger('notebook')
+lenskit.util.log_to_notebook()
+tqdm.pandas()
+```
+
+Where do we want output?
+
+```{python}
+fig_dir = init_figs('ItemDists')
+print(fig_dir)
+```
+
+### Loading Data
+
+Now let's load the MovieLens data and recommendation outputs.
+
+First the test data:
+
+```{python}
+test_dir = Path('data-split/ml1m/')
+test = pd.read_parquet(test_dir / 'test-1.parquet')
+test.head()
+```
+
+Now let's load the item data:
+
+```{python}
+ml_dir = Path('data/ml-1m/')
+movies = pd.read_table(ml_dir / 'movies.dat', sep='::', names=['item', 'title', 'genres'],
+                       engine='python', encoding='latin1')
+movies.set_index('item', inplace=True)
+movies.head()
+```
+
+Expand that movie genre column into a matrix, allocating movies across genres:
+
+```{python}
+genres = movies['genres'].str.split('|').explode()
+genres = genres.to_frame('genre').assign(value=1)
+genres = genres.pivot(columns='genre', values='value')
+genres.fillna(0, inplace=True)
+genres = genres.divide(genres.sum(axis=1), axis=0)
+genres
+```
+
+Quick explore - what's the total allocation to each genre?
+
+```{python}
+genre_tot = genres.sum().to_frame('total')
+genre_tot['frac'] = genre_tot['total'] / genre_tot['total'].sum()
+genre_tot.sort_values('total', ascending=False)
+```
+
+And the recommendations:
+
+```{python}
+run_dir = Path('runs/')
+recs = {}
+for rf in run_dir.glob('ml1m-*/recs-1.parquet'):
+    rdname = rf.parent.name
+    algo = rdname[len('ml1m-'):]
+    recs[algo] = pd.read_parquet(rf)
+recs = pd.concat(recs, names=['algo'])
+recs = recs.reset_index('algo').reset_index(drop=True)
+recs.algo = recs.algo.astype('category').cat.rename_categories({'III': 'IKNN'})
+recs.head()
+```
+
+### Computing Exposure
+
+Now that the recommendations are computed, let's compute some per-item exposure.  Since we use the geometric browsing model,
+we can get the per-item exposure simply by transforming the `rank` column:
+
+```{python}
+recs['weight'] = discount(recs['rank'])
+```
+
+We can then compute the *total* exposure for each item:
+
+```{python}
+item_exp = recs.groupby(['algo', 'item'])['weight'].mean()
+item_exp.head()
+```
+
+Now make it wide, fill in un-recommended items with 0 exposure, and normalize so exposure sums to 1:
+
+```{python}
+exp_wide = item_exp.unstack('algo').reindex(movies.index).fillna(0)
+exp_wide /= exp_wide.sum()
+exp_wide
+```
+
+```{python}
+exp_wide = exp_wide[['Pop', 'IKNN', 'IALS']]
+```
+
+## Distribution of Exposure
+
+Let's now look at the distribution of expoure over items!
+
+```{python}
+exp_tall = exp_wide.melt(value_name='exposure')
+exp_wide.describe()
+```
+
+```{python}
+make_plot(
+    exp_tall,
+    pn.aes(x='exposure', color='algo', linetype='algo'),
+    pn.stat_ecdf(),
+    pn.scale_x_log10(),
+    pn.scale_color_brewer('qual', 'Dark2'),
+    pn.xlab('Item Expected Exposure'),
+    pn.ylab('CDF'),
+    legend_direction='horizontal',
+    legend_position='top',
+    legend_title=pn.element_blank(),
+    file='item-exp-cdf.png',
+    width=4.5,
+    height=3,
+)
+```
+
+```{python}
+for name in exp_wide.columns:
+    _log.info('plotting %s', name)
+    sns.kdeplot(np.maximum(exp_wide[name], 1.0e-100), label=name, log_scale=True)
+plt.legend()
+```
+
+We can conclude from this that IALS is providing more exposure to more items than both the popular and item-item algorithms.
+
+Let's look at Lorenz curves for an alternate view.
+
+```{python}
+exp_tall['rank'] = exp_tall.groupby('algo')['exposure'].rank(method='first')
+exp_tall['frank'] = exp_tall['rank'] / exp_tall['rank'].max()
+exp_tall = exp_tall.sort_values(['algo', 'rank'])
+exp_tall['csum'] = exp_tall.groupby('algo')['exposure'].cumsum()
+exp_tall
+```
+
+Compute some Gini coefficients:
+
+```{python}
+def exp_gini(df):
+    ranks = df['rank'].max() + 1 - df['rank']
+    terms = ranks * df['exposure']
+    mean = df['exposure'].mean()
+    N = len(df)
+    G = np.sum(terms)
+    G *= -2 / (N * (N - 1) * mean)
+    G += (N + 1) / (N - 1)
+    return G
+```
+
+```{python}
+algo_gini = exp_tall.groupby('algo').apply(exp_gini)
+algo_gini
+```
+
+And plot Lorenz curves:
+
+```{python}
+make_plot(
+    exp_tall,
+    pn.aes(x='frank', y='csum', color='algo', linetype='algo'),
+    pn.geom_line(),
+    pn.geom_abline(pn.aes(intercept=0, slope=1)),
+    pn.scale_color_brewer('qual', 'Dark2'),
+    pn.xlab('Item Rank'),
+    pn.ylab('Cum. Frac. Exposure'),
+    legend_direction='horizontal',
+    legend_position='top',
+    legend_title=pn.element_blank(),
+    file='item-exp-lorenz.png',
+    width=4.5,
+    height=2,
+)
+```
+
+
+## Group Exposure
+
+For demonstration purposes, we're going to look at the distribution of exposure over genres.
+
+```{python}
+genre_exp = genres.T @ exp_wide
+genre_exp
+```
+
+```{python}
+genre_relexp = genre_exp.subtract(genre_tot['frac'], axis=0)
+genre_relexp
+```
+
+```{python}
+genre_etall = genre_exp.reset_index().melt(id_vars='genre', value_name='exposure')
+genre_rtall = genre_relexp.reset_index().melt(id_vars='genre', value_name='exposure')
+```
+
+Exposure per genre:
+
+```{python}
+sns.catplot(genre_etall, y='genre', hue='algo', x='exposure', kind='bar')
+```
+
+Exposure relative to total per genre:
+
+```{python}
+make_plot(
+    genre_rtall,
+    pn.aes(x='genre', y='exposure', fill='algo'),
+    pn.geom_bar(position='dodge', stat='identity'),
+    pn.coord_flip(),
+    pn.scale_fill_brewer('qual', 'Dark2'),
+    pn.ylab('Exposure Relative to Genre Distribution'),
+    pn.xlab('Genre'),
+    file='genre-exp-overall.png',
+)
+```
+
+IALS is also doing the best at matching exposure visually; let's check that by computing the K-L divergence from overall:
+
+```{python}
+genre_exp.apply(lambda x: stats.entropy(x, genre_tot['frac']))
+```
+
+Yes, we confirm a good match.
+
+## Relative to Ideal
+
+In the Expected Exposure paper, the authors define a target based on system relevance.  Let's use the test data to determine those ideals, and measure closeness.
+
+Each user is supposed to have exactly 5 test items:
+
+```{python}
+test.value_counts('user').describe()
+```
+
+We can go through the formula from Diaz et al. to determine the expected exposure of a test item given that each user has 5 relevant items.  We can also compute the total exposure in a list:
+
+```{python}
+ltot = discount(np.arange(1, 1001)).sum()
+ltot
+```
+
+The total for relevant items:
+
+```{python}
+rtot = test_weight(5) * 5
+rtot
+```
+
+So we'll allocate 3.36/4 exposure across the relevant items equally, and 0.64/4 across the irrelevant items equally.
+
+```{python}
+ritot = rtot / 5 / ltot
+ritot
+```
+
+```{python}
+nitems = len(movies)
+uitot = (ltot - rtot) / ltot / (nitems - 5)
+uitot
+```
+
+```{python}
+nusers = test['user'].nunique()
+```
+
+  To compute the exposure expected for each item, we will start by computing the relevant item exposure, and then we will add in the estimated irrelevant item exposure based on the total item count.
+
+```{python}
+item_tgt = test.groupby('item')['user'].count().to_frame('count')
+item_tgt = item_tgt.reindex(movies.index).fillna(0)
+item_tgt['rel'] = (item_tgt['count'] * ritot) / nusers
+item_tgt['unrel'] = ((nusers - item_tgt['count']) * uitot) / nusers
+item_tgt['exp'] = item_tgt['rel'] + item_tgt['unrel']
+item_tgt
+```
+
+```{python}
+item_tgt.sum()
+```
+
+That gives us total ideal EE of 1, which is what we would expect.
+
+Now, let's look at how this compares to the system exposure.
+
+```{python}
+diff_wide = exp_wide.subtract(item_tgt['exp'], axis=0)
+diff_wide
+```
+
+```{python}
+diff_wide.describe()
+```
+
+```{python}
+diff_tall = diff_wide.melt()
+diff_tall
+```
+
+```{python}
+sns.displot(diff_tall, x='value', hue='algo', kind='ecdf')
+```
+
+```{python}
+make_plot(
+    diff_tall,
+    pn.aes(x='value', color='algo'),
+    pn.stat_ecdf(),
+#     pn.scale_x_log10(),
+    pn.ylab('CDF'),
+    pn.xlab('Exposure Relative to Ideal'),
+    file='item-exp-ideal.png',
+)
+```
+
+That's hard to read.  Let's compute the EEL L2 loss function:
+
+```{python}
+exp_l2 = np.square(diff_wide).sum()
+exp_l2
+```
+
+IALS has much lower EEL.  Let's also do K-L divergence for consistency:
+
+```{python}
+exp_kl = exp_wide.apply(lambda x: stats.entropy(x, item_tgt['exp']))
+exp_kl
+```
+
+Now we're going to make a little table that has these and the Gini coefficients.
+
+```{python}
+id_tbl = pd.DataFrame({
+    'Gini': algo_gini,
+    'L2': exp_l2,
+    'KL': exp_kl,
+})
+id_tbl
+```
+
+```{python}
+(fig_dir / 'item-dist-tbl.tex').write_text(
+    id_tbl.to_latex(index_names=False)
+)
+```
+
+### Ideal Genre Exposure 
+
+Now let's look at genres relative to targets:
+
+```{python}
+gtgt = genres.T @ item_tgt['exp']
+```
+
+```{python}
+genre_diff = genre_exp.subtract(gtgt, axis=0)
+genre_diff
+```
+
+```{python}
+genre_diff.describe()
+```
+
+```{python}
+genre_dtall = genre_diff.reset_index().melt(id_vars='genre')
+genre_dtall
+```
+
+```{python}
+make_plot(
+    genre_dtall,
+    pn.aes(x='genre', y='value', fill='algo'),
+    pn.geom_bar(position='dodge', stat='identity'),
+    pn.coord_flip(),
+    pn.scale_fill_brewer('qual', 'Dark2'),
+    pn.ylab('Exposure Relative to Ideal'),
+    pn.xlab('Genre'),
+    file='genre-exp-ideal.png',
+)
+```
+
+What's the genre-based L2 diffs?
+
+```{python}
+np.square(genre_diff).sum()
+```
+
+And the genre-based K-L:
+
+```{python}
+genre_exp.apply(lambda x: stats.entropy(x, gtgt))
+```
+
+Good across the board.

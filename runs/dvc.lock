@@ -1,0 +1,1034 @@
+schema: '2.0'
+stages:
+  ml100k@II:
+    cmd: python run-algo.py --splits data-split/ml100k -o runs/ml100k-II II
+    deps:
+    - path: data-split/ml100k
+      md5: 9febdcbbc95cabbcafe286fc40779644.dir
+      size: 53391
+      nfiles: 5
+    outs:
+    - path: runs/ml100k-II
+      md5: 863329ca2ac54f53d9f92a3563159420.dir
+      size: 1294937
+      nfiles: 10
+  ml100k@IALS:
+    cmd: python run-algo.py --splits data-split/ml100k -o runs/ml100k-IALS IALS
+    deps:
+    - path: data-split/ml100k
+      md5: 9febdcbbc95cabbcafe286fc40779644.dir
+      size: 53391
+      nfiles: 5
+    outs:
+    - path: runs/ml100k-IALS
+      md5: bd5e33d07c56b2e25dcdde45bb760296.dir
+      size: 1340517
+      nfiles: 10
+  ml100k@UU:
+    cmd: python run-algo.py --splits data-split/ml100k -o runs/ml100k-UU UU
+    deps:
+    - path: data-split/ml100k
+      md5: 9febdcbbc95cabbcafe286fc40779644.dir
+      size: 53391
+      nfiles: 5
+    outs:
+    - path: runs/ml100k-UU
+      md5: f6546dc1b8df0722ef4c8d7df869bd62.dir
+      size: 1246228
+      nfiles: 10
+  ml100k@Bias:
+    cmd: python run-algo.py --splits data-split/ml100k -o runs/ml100k-Bias Bias
+    deps:
+    - path: data-split/ml100k
+      md5: 9febdcbbc95cabbcafe286fc40779644.dir
+      size: 53391
+      nfiles: 5
+    outs:
+    - path: runs/ml100k-Bias
+      md5: 932659d5e5e6b172e2bf088c2aa0468c.dir
+      size: 1248927
+      nfiles: 10
+  ml100k@ALS:
+    cmd: python run-algo.py --splits data-split/ml100k -o runs/ml100k-ALS ALS
+    deps:
+    - path: data-split/ml100k
+      md5: 9febdcbbc95cabbcafe286fc40779644.dir
+      size: 53391
+      nfiles: 5
+    outs:
+    - path: runs/ml100k-ALS
+      md5: 6b2fef08276ca63aa70cb252ab39d712.dir
+      size: 1294378
+      nfiles: 10
+  ml100k@Pop:
+    cmd: python run-algo.py --splits data-split/ml100k -o runs/ml100k-Pop Pop
+    deps:
+    - path: data-split/ml100k
+      md5: 9febdcbbc95cabbcafe286fc40779644.dir
+      size: 53391
+      nfiles: 5
+    outs:
+    - path: runs/ml100k-Pop
+      md5: 958af5a21f3afc64a4fad91cce91b1ed.dir
+      size: 421665
+      nfiles: 5
+  ml20m@Pop:
+    cmd: python run-algo.py --splits data-split/ml20m -o runs/ml20m-Pop Pop
+    deps:
+    - path: data-split/ml20m
+      md5: be23d86df5267ea974602fa95cc8eba4.dir
+      size: 8145758
+      nfiles: 5
+    outs:
+    - path: runs/ml20m-Pop
+      md5: f46a1273c2ce8e15b70d6466b4ae1976.dir
+      size: 64470311
+      nfiles: 5
+  ml20m@Bias:
+    cmd: python run-algo.py --splits data-split/ml20m -o runs/ml20m-Bias Bias
+    deps:
+    - path: data-split/ml20m
+      md5: be23d86df5267ea974602fa95cc8eba4.dir
+      size: 8145758
+      nfiles: 5
+    outs:
+    - path: runs/ml20m-Bias
+      md5: 830b5b470ff54a8e313b755f9006f43d.dir
+      size: 188028321
+      nfiles: 10
+  ml20m@II:
+    cmd: python run-algo.py --splits data-split/ml20m -o runs/ml20m-II II
+    deps:
+    - path: data-split/ml20m
+      md5: be23d86df5267ea974602fa95cc8eba4.dir
+      size: 8145758
+      nfiles: 5
+    outs:
+    - path: runs/ml20m-II
+      md5: 5bd7946896cf0dafd9c3184ff4db42b1.dir
+      size: 197751892
+      nfiles: 10
+  ml20m@UU:
+    cmd: python run-algo.py --splits data-split/ml20m -o runs/ml20m-UU UU
+    deps:
+    - path: data-split/ml20m
+      md5: be23d86df5267ea974602fa95cc8eba4.dir
+      size: 8145758
+      nfiles: 5
+    outs:
+    - path: runs/ml20m-UU
+      md5: 364714c24b9384ebe6dfa84411638e2c.dir
+      size: 160417610
+      nfiles: 10
+  ml20m@ALS:
+    cmd: python run-algo.py --splits data-split/ml20m -o runs/ml20m-ALS ALS
+    deps:
+    - path: data-split/ml20m
+      md5: be23d86df5267ea974602fa95cc8eba4.dir
+      size: 8145758
+      nfiles: 5
+    outs:
+    - path: runs/ml20m-ALS
+      md5: 57589ab5253fac7b7888846164f8c443.dir
+      size: 198880522
+      nfiles: 10
+  ml20m@IALS:
+    cmd: python run-algo.py --splits data-split/ml20m -o runs/ml20m-IALS IALS
+    deps:
+    - path: data-split/ml20m
+      md5: be23d86df5267ea974602fa95cc8eba4.dir
+      size: 8145758
+      nfiles: 5
+    outs:
+    - path: runs/ml20m-IALS
+      md5: cd30d57e26096523da2f3a254738207c.dir
+      size: 203625356
+      nfiles: 10
+  ml20m@III:
+    cmd: python run-algo.py --splits data-split/ml20m -o runs/ml20m-III III
+    deps:
+    - path: data-split/ml20m
+      md5: e18d0f4f9283999ce3837614d29d44a9.dir
+      size: 8145767
+      nfiles: 5
+    outs:
+    - path: runs/ml20m-III
+      md5: e107e13e9190d6b20067999b4a131e6c.dir
+      size: 198445287
+      nfiles: 10
+  mlsmall@Pop:
+    cmd: python run-algo.py --splits data-split/mlsmall -o runs/mlsmall-Pop Pop
+    deps:
+    - path: data-split/mlsmall
+      md5: dea9d6d987b27fa1350468028487bf5e.dir
+      size: 35890
+      nfiles: 5
+    outs:
+    - path: runs/mlsmall-Pop
+      md5: 0163fcd72742c1e195db6f441abc942c.dir
+      size: 274606
+      nfiles: 5
+  mlsmall@Bias:
+    cmd: python run-algo.py --splits data-split/mlsmall -o runs/mlsmall-Bias Bias
+    deps:
+    - path: data-split/mlsmall
+      md5: dea9d6d987b27fa1350468028487bf5e.dir
+      size: 35890
+      nfiles: 5
+    outs:
+    - path: runs/mlsmall-Bias
+      md5: a035fbb42a68c10849e533dde512eb22.dir
+      size: 790485
+      nfiles: 10
+  mlsmall@II:
+    cmd: python run-algo.py --splits data-split/mlsmall -o runs/mlsmall-II II
+    deps:
+    - path: data-split/mlsmall
+      md5: dea9d6d987b27fa1350468028487bf5e.dir
+      size: 35890
+      nfiles: 5
+    outs:
+    - path: runs/mlsmall-II
+      md5: 87f5e3024797e7ba1063ab09d8d5cc4d.dir
+      size: 839173
+      nfiles: 10
+  mlsmall@UU:
+    cmd: python run-algo.py --splits data-split/mlsmall -o runs/mlsmall-UU UU
+    deps:
+    - path: data-split/mlsmall
+      md5: dea9d6d987b27fa1350468028487bf5e.dir
+      size: 35890
+      nfiles: 5
+    outs:
+    - path: runs/mlsmall-UU
+      md5: ba23fde6c04ced7e4a21f331775425ba.dir
+      size: 575657
+      nfiles: 10
+  mlsmall@ALS:
+    cmd: python run-algo.py --splits data-split/mlsmall -o runs/mlsmall-ALS ALS
+    deps:
+    - path: data-split/mlsmall
+      md5: dea9d6d987b27fa1350468028487bf5e.dir
+      size: 35890
+      nfiles: 5
+    outs:
+    - path: runs/mlsmall-ALS
+      md5: 60f1bdc29c35fc51581948118738f76a.dir
+      size: 862629
+      nfiles: 10
+  mlsmall@IALS:
+    cmd: python run-algo.py --splits data-split/mlsmall -o runs/mlsmall-IALS IALS
+    deps:
+    - path: data-split/mlsmall
+      md5: dea9d6d987b27fa1350468028487bf5e.dir
+      size: 35890
+      nfiles: 5
+    outs:
+    - path: runs/mlsmall-IALS
+      md5: 384862656bf6a93828b0b18fa544f34a.dir
+      size: 890773
+      nfiles: 10
+  ml1m@Pop:
+    cmd: python run-algo.py --splits data-split/ml1m -o runs/ml1m-Pop Pop
+    deps:
+    - path: data-split/ml1m
+      md5: 477537a8782db4433044ea02693ec59e.dir
+      size: 332990
+      nfiles: 5
+    outs:
+    - path: runs/ml1m-Pop
+      md5: 2aa2a127aff1fac673cc22c83bf91065.dir
+      size: 2828129
+      nfiles: 5
+  ml1m@Bias:
+    cmd: python run-algo.py --splits data-split/ml1m -o runs/ml1m-Bias Bias
+    deps:
+    - path: data-split/ml1m
+      md5: 477537a8782db4433044ea02693ec59e.dir
+      size: 332990
+      nfiles: 5
+    outs:
+    - path: runs/ml1m-Bias
+      md5: 4030ac217ad5dc8df1f5eeaa8ed230fa.dir
+      size: 8136635
+      nfiles: 10
+  ml1m@II:
+    cmd: python run-algo.py --splits data-split/ml1m -o runs/ml1m-II II
+    deps:
+    - path: data-split/ml1m
+      md5: 477537a8782db4433044ea02693ec59e.dir
+      size: 332990
+      nfiles: 5
+    outs:
+    - path: runs/ml1m-II
+      md5: e7d7765a2cb7a57275c4b4557c890bba.dir
+      size: 8410890
+      nfiles: 10
+  ml1m@UU:
+    cmd: python run-algo.py --splits data-split/ml1m -o runs/ml1m-UU UU
+    deps:
+    - path: data-split/ml1m
+      md5: 477537a8782db4433044ea02693ec59e.dir
+      size: 332990
+      nfiles: 5
+    outs:
+    - path: runs/ml1m-UU
+      md5: 857850cfb0e4a5f9b59bc272fb21e254.dir
+      size: 8329587
+      nfiles: 10
+  ml1m@ALS:
+    cmd: python run-algo.py --splits data-split/ml1m -o runs/ml1m-ALS ALS
+    deps:
+    - path: data-split/ml1m
+      md5: 477537a8782db4433044ea02693ec59e.dir
+      size: 332990
+      nfiles: 5
+    outs:
+    - path: runs/ml1m-ALS
+      md5: 4b04c65e7b8724bb4384108f91ee1397.dir
+      size: 8352544
+      nfiles: 10
+  ml1m@IALS:
+    cmd: python run-algo.py --splits data-split/ml1m -o runs/ml1m-IALS IALS
+    deps:
+    - path: data-split/ml1m
+      md5: 477537a8782db4433044ea02693ec59e.dir
+      size: 332990
+      nfiles: 5
+    outs:
+    - path: runs/ml1m-IALS
+      md5: 974038c01d35319e6f680ede34dcb96f.dir
+      size: 8756630
+      nfiles: 10
+  ml10m@Pop:
+    cmd: python run-algo.py --splits data-split/ml10m -o runs/ml10m-Pop Pop
+    deps:
+    - path: data-split/ml10m
+      md5: 1b880ea0e6cd33460e516f34c15da528.dir
+      size: 4008858
+      nfiles: 5
+    outs:
+    - path: runs/ml10m-Pop
+      md5: a0561623a67796bd93648e9c2a5ca138.dir
+      size: 32510867
+      nfiles: 5
+  ml10m@Bias:
+    cmd: python run-algo.py --splits data-split/ml10m -o runs/ml10m-Bias Bias
+    deps:
+    - path: data-split/ml10m
+      md5: 1b880ea0e6cd33460e516f34c15da528.dir
+      size: 4008858
+      nfiles: 5
+    outs:
+    - path: runs/ml10m-Bias
+      md5: f3a8d7076768c2f348796b1bf9afa29f.dir
+      size: 94231984
+      nfiles: 10
+  ml10m@II:
+    cmd: python run-algo.py --splits data-split/ml10m -o runs/ml10m-II II
+    deps:
+    - path: data-split/ml10m
+      md5: 1b880ea0e6cd33460e516f34c15da528.dir
+      size: 4008858
+      nfiles: 5
+    outs:
+    - path: runs/ml10m-II
+      md5: b6ba5cb6848778bb6303b424c0c6b067.dir
+      size: 100690007
+      nfiles: 10
+  ml10m@UU:
+    cmd: python run-algo.py --splits data-split/ml10m -o runs/ml10m-UU UU
+    deps:
+    - path: data-split/ml10m
+      md5: 1b880ea0e6cd33460e516f34c15da528.dir
+      size: 4008858
+      nfiles: 5
+    outs:
+    - path: runs/ml10m-UU
+      md5: ca738f09aa380c955ca0c5449deaba40.dir
+      size: 96180921
+      nfiles: 10
+  ml10m@ALS:
+    cmd: python run-algo.py --splits data-split/ml10m -o runs/ml10m-ALS ALS
+    deps:
+    - path: data-split/ml10m
+      md5: 1b880ea0e6cd33460e516f34c15da528.dir
+      size: 4008858
+      nfiles: 5
+    outs:
+    - path: runs/ml10m-ALS
+      md5: 761809babad6b6d3984105100f8b806e.dir
+      size: 98280203
+      nfiles: 10
+  ml10m@IALS:
+    cmd: python run-algo.py --splits data-split/ml10m -o runs/ml10m-IALS IALS
+    deps:
+    - path: data-split/ml10m
+      md5: 1b880ea0e6cd33460e516f34c15da528.dir
+      size: 4008858
+      nfiles: 5
+    outs:
+    - path: runs/ml10m-IALS
+      md5: d564741d16aae54e840d173e9b674ca8.dir
+      size: 102035362
+      nfiles: 10
+  ml100k-implicit@Pop:
+    cmd: python run-algo.py --splits data-split/ml100k -o runs/ml100k-Pop --no-predict
+      Pop
+    deps:
+    - path: data-split/ml100k
+      md5: 9febdcbbc95cabbcafe286fc40779644.dir
+      size: 53391
+      nfiles: 5
+    outs:
+    - path: runs/ml100k-Pop
+      md5: d101ffefdd8795c7bfa2cdbc36135ff1.dir
+      size: 421665
+      nfiles: 5
+  ml100k-explicit@Bias:
+    cmd: python run-algo.py --splits data-split/ml100k -o runs/ml100k-Bias Bias
+    deps:
+    - path: data-split/ml100k
+      md5: 9febdcbbc95cabbcafe286fc40779644.dir
+      size: 53391
+      nfiles: 5
+    outs:
+    - path: runs/ml100k-Bias
+      md5: 932659d5e5e6b172e2bf088c2aa0468c.dir
+      size: 1248927
+      nfiles: 10
+  ml100k-explicit@IIE:
+    cmd: python run-algo.py --splits data-split/ml100k -o runs/ml100k-IIE IIE
+    deps:
+    - path: data-split/ml100k
+      md5: 9febdcbbc95cabbcafe286fc40779644.dir
+      size: 53391
+      nfiles: 5
+    outs:
+    - path: runs/ml100k-IIE
+      md5: 6546e3e21317f63cbdbb124b6b3514dc.dir
+      size: 1294937
+      nfiles: 10
+  ml100k-explicit@UUE:
+    cmd: python run-algo.py --splits data-split/ml100k -o runs/ml100k-UUE UUE
+    deps:
+    - path: data-split/ml100k
+      md5: 9febdcbbc95cabbcafe286fc40779644.dir
+      size: 53391
+      nfiles: 5
+    outs:
+    - path: runs/ml100k-UUE
+      md5: cb7f41a1ca1dbc9a09063cb489a6ccd0.dir
+      size: 1246228
+      nfiles: 10
+  ml100k-explicit@ALS:
+    cmd: python run-algo.py --splits data-split/ml100k -o runs/ml100k-ALS ALS
+    deps:
+    - path: data-split/ml100k
+      md5: 9febdcbbc95cabbcafe286fc40779644.dir
+      size: 53391
+      nfiles: 5
+    outs:
+    - path: runs/ml100k-ALS
+      md5: 6b2fef08276ca63aa70cb252ab39d712.dir
+      size: 1294378
+      nfiles: 10
+  ml100k-implicit@IALS:
+    cmd: python run-algo.py --splits data-split/ml100k -o runs/ml100k-IALS --no-predict
+      IALS
+    deps:
+    - path: data-split/ml100k
+      md5: 9febdcbbc95cabbcafe286fc40779644.dir
+      size: 53391
+      nfiles: 5
+    outs:
+    - path: runs/ml100k-IALS
+      md5: b76d374d3363158dd7f6c2832780eaf8.dir
+      size: 1255640
+      nfiles: 5
+  ml100k-implicit@III:
+    cmd: python run-algo.py --splits data-split/ml100k -o runs/ml100k-III --no-predict
+      III
+    deps:
+    - path: data-split/ml100k
+      md5: 9febdcbbc95cabbcafe286fc40779644.dir
+      size: 53391
+      nfiles: 5
+    outs:
+    - path: runs/ml100k-III
+      md5: 8db906e7faa0ffa8a180007db6e92342.dir
+      size: 1230320
+      nfiles: 5
+  ml1m-implicit@Pop:
+    cmd: python run-algo.py --no-predict --splits data-split/ml1m -o runs/ml1m-Pop
+      -n 1000 Pop
+    deps:
+    - path: data-split/ml1m
+      md5: 6711bb5577ead59221f796a939cb89d3.dir
+      size: 4012507
+      nfiles: 50
+    outs:
+    - path: runs/ml1m-Pop
+      md5: 02809faf1ec6b0a15bc8ba64171a26b3.dir
+      size: 27049651
+      nfiles: 50
+  ml1m-explicit@Bias:
+    cmd: python run-algo.py --splits data-split/ml1m -o runs/ml1m-Bias -n 1000 Bias
+    deps:
+    - path: data-split/ml1m
+      md5: 6711bb5577ead59221f796a939cb89d3.dir
+      size: 4012507
+      nfiles: 50
+    outs:
+    - path: runs/ml1m-Bias
+      md5: 8f2d8f27896a394605e4d269068302da.dir
+      size: 447226611
+      nfiles: 100
+  ml1m-explicit@IIE:
+    cmd: python run-algo.py --splits data-split/ml1m -o runs/ml1m-IIE -n 1000 IIE
+    deps:
+    - path: data-split/ml1m
+      md5: 6711bb5577ead59221f796a939cb89d3.dir
+      size: 4012507
+      nfiles: 50
+    outs:
+    - path: runs/ml1m-IIE
+      md5: 1ea04b36c859f5a872b8f6ccb9a7ced4.dir
+      size: 577659566
+      nfiles: 100
+  ml1m-explicit@UUE:
+    cmd: python run-algo.py --splits data-split/ml1m -o runs/ml1m-UUE -n 1000 UUE
+    deps:
+    - path: data-split/ml1m
+      md5: 6711bb5577ead59221f796a939cb89d3.dir
+      size: 4012507
+      nfiles: 50
+    outs:
+    - path: runs/ml1m-UUE
+      md5: 1ecdc4f4d07657ad7270d423878e863e.dir
+      size: 573492520
+      nfiles: 100
+  ml1m-explicit@ALS:
+    cmd: python run-algo.py --splits data-split/ml1m -o runs/ml1m-ALS -n 1000 ALS
+    deps:
+    - path: data-split/ml1m
+      md5: 6711bb5577ead59221f796a939cb89d3.dir
+      size: 4012507
+      nfiles: 50
+    outs:
+    - path: runs/ml1m-ALS
+      md5: e6d33364ea4d310f3c4e4c00cc040012.dir
+      size: 572514912
+      nfiles: 100
+  ml1m-implicit@III:
+    cmd: python run-algo.py --no-predict --splits data-split/ml1m -o runs/ml1m-III
+      -n 1000 III
+    deps:
+    - path: data-split/ml1m
+      md5: 6711bb5577ead59221f796a939cb89d3.dir
+      size: 4012507
+      nfiles: 50
+    outs:
+    - path: runs/ml1m-III
+      md5: de22b2c5c0b12b2eb1d0cb458e50ed73.dir
+      size: 607009150
+      nfiles: 50
+  ml1m-implicit@IALS:
+    cmd: python run-algo.py --no-predict --splits data-split/ml1m -o runs/ml1m-IALS
+      -n 1000 IALS
+    deps:
+    - path: data-split/ml1m
+      md5: 6711bb5577ead59221f796a939cb89d3.dir
+      size: 4012507
+      nfiles: 50
+    outs:
+    - path: runs/ml1m-IALS
+      md5: d1195babe6ba009df88d52ed15a328a3.dir
+      size: 611199746
+      nfiles: 50
+  ml20m-implicit@Pop:
+    cmd: python run-algo.py --splits data-split/ml20m -o runs/ml20m-Pop Pop
+    deps:
+    - path: data-split/ml20m
+      md5: be23d86df5267ea974602fa95cc8eba4.dir
+      size: 8145758
+      nfiles: 5
+    outs:
+    - path: runs/ml20m-Pop
+      md5: fd74579c1fcf66c5b5d0c7e800f1e347.dir
+      size: 63463349
+      nfiles: 5
+  ml20m-explicit@Bias:
+    cmd: python run-algo.py --splits data-split/ml20m -o runs/ml20m-Bias Bias
+    deps:
+    - path: data-split/ml20m
+      md5: be23d86df5267ea974602fa95cc8eba4.dir
+      size: 8145758
+      nfiles: 5
+    outs:
+    - path: runs/ml20m-Bias
+      md5: 68c3914a88cf2732dd6b21c7606d6deb.dir
+      size: 186159023
+      nfiles: 10
+  ml20m-explicit@IIE:
+    cmd: python run-algo.py --splits data-split/ml20m -o runs/ml20m-IIE IIE
+    deps:
+    - path: data-split/ml20m
+      md5: be23d86df5267ea974602fa95cc8eba4.dir
+      size: 8145758
+      nfiles: 5
+    outs:
+    - path: runs/ml20m-IIE
+      md5: 1549013a4e7c924cbf1f2b9f7a9b82e6.dir
+      size: 196469005
+      nfiles: 10
+  ml20m-explicit@UUE:
+    cmd: python run-algo.py --splits data-split/ml20m -o runs/ml20m-UUE UUE
+    deps:
+    - path: data-split/ml20m
+      md5: be23d86df5267ea974602fa95cc8eba4.dir
+      size: 8145758
+      nfiles: 5
+    outs:
+    - path: runs/ml20m-UUE
+      md5: 823bfdf4a783423765a9b50d2b9f7cca.dir
+      size: 159565629
+      nfiles: 10
+  ml20m-explicit@ALS:
+    cmd: python run-algo.py --splits data-split/ml20m -o runs/ml20m-ALS ALS
+    deps:
+    - path: data-split/ml20m
+      md5: be23d86df5267ea974602fa95cc8eba4.dir
+      size: 8145758
+      nfiles: 5
+    outs:
+    - path: runs/ml20m-ALS
+      md5: 0e7978aaf507dc465de91f192306e8d4.dir
+      size: 197539849
+      nfiles: 10
+  ml20m-implicit@III:
+    cmd: python run-algo.py --splits data-split/ml20m -o runs/ml20m-III III
+    deps:
+    - path: data-split/ml20m
+      md5: be23d86df5267ea974602fa95cc8eba4.dir
+      size: 8145758
+      nfiles: 5
+    outs:
+    - path: runs/ml20m-III
+      md5: 3691df7eae981c6868ef9e4ce0579b9c.dir
+      size: 196737003
+      nfiles: 10
+  ml20m-implicit@IALS:
+    cmd: python run-algo.py --splits data-split/ml20m -o runs/ml20m-IALS IALS
+    deps:
+    - path: data-split/ml20m
+      md5: be23d86df5267ea974602fa95cc8eba4.dir
+      size: 8145758
+      nfiles: 5
+    outs:
+    - path: runs/ml20m-IALS
+      md5: 3be730814609f09ec178049e7fd07db9.dir
+      size: 202257650
+      nfiles: 10
+  mlsmall-implicit@Pop:
+    cmd: python run-algo.py --splits data-split/mlsmall -o runs/mlsmall-Pop Pop
+    deps:
+    - path: data-split/mlsmall
+      md5: dea9d6d987b27fa1350468028487bf5e.dir
+      size: 35890
+      nfiles: 5
+    outs:
+    - path: runs/mlsmall-Pop
+      md5: 40afe1eb5bc0cb3c00a6643eec498860.dir
+      size: 270443
+      nfiles: 5
+  mlsmall-explicit@Bias:
+    cmd: python run-algo.py --splits data-split/mlsmall -o runs/mlsmall-Bias Bias
+    deps:
+    - path: data-split/mlsmall
+      md5: dea9d6d987b27fa1350468028487bf5e.dir
+      size: 35890
+      nfiles: 5
+    outs:
+    - path: runs/mlsmall-Bias
+      md5: 2e81e75b435524dbcc1f238cbc9997e7.dir
+      size: 784716
+      nfiles: 10
+  mlsmall-explicit@IIE:
+    cmd: python run-algo.py --splits data-split/mlsmall -o runs/mlsmall-IIE IIE
+    deps:
+    - path: data-split/mlsmall
+      md5: dea9d6d987b27fa1350468028487bf5e.dir
+      size: 35890
+      nfiles: 5
+    outs:
+    - path: runs/mlsmall-IIE
+      md5: 610d2fb0f27e03b3d87264529b682a97.dir
+      size: 831508
+      nfiles: 10
+  mlsmall-explicit@UUE:
+    cmd: python run-algo.py --splits data-split/mlsmall -o runs/mlsmall-UUE UUE
+    deps:
+    - path: data-split/mlsmall
+      md5: dea9d6d987b27fa1350468028487bf5e.dir
+      size: 35890
+      nfiles: 5
+    outs:
+    - path: runs/mlsmall-UUE
+      md5: 40cb87dbab4324167b2cc48f7a7fdff6.dir
+      size: 567281
+      nfiles: 10
+  mlsmall-explicit@ALS:
+    cmd: python run-algo.py --splits data-split/mlsmall -o runs/mlsmall-ALS ALS
+    deps:
+    - path: data-split/mlsmall
+      md5: dea9d6d987b27fa1350468028487bf5e.dir
+      size: 35890
+      nfiles: 5
+    outs:
+    - path: runs/mlsmall-ALS
+      md5: f2f1655d5868e3ae9b3ea6c797573f54.dir
+      size: 855162
+      nfiles: 10
+  mlsmall-implicit@IALS:
+    cmd: python run-algo.py --splits data-split/mlsmall -o runs/mlsmall-IALS IALS
+    deps:
+    - path: data-split/mlsmall
+      md5: dea9d6d987b27fa1350468028487bf5e.dir
+      size: 35890
+      nfiles: 5
+    outs:
+    - path: runs/mlsmall-IALS
+      md5: 7f0251d1ea2e5b9413165bf93eab128c.dir
+      size: 882978
+      nfiles: 10
+  mlsmall-implicit@III:
+    cmd: python run-algo.py --splits data-split/mlsmall -o runs/mlsmall-III III
+    deps:
+    - path: data-split/mlsmall
+      md5: dea9d6d987b27fa1350468028487bf5e.dir
+      size: 35890
+      nfiles: 5
+    outs:
+    - path: runs/mlsmall-III
+      md5: f4ecbe6d3d0b6c3e761f30ee1f694062.dir
+      size: 837544
+      nfiles: 10
+  ml10m-implicit@Pop:
+    cmd: python run-algo.py --splits data-split/ml10m -o runs/ml10m-Pop Pop
+    deps:
+    - path: data-split/ml10m
+      md5: 1b880ea0e6cd33460e516f34c15da528.dir
+      size: 4008858
+      nfiles: 5
+    outs:
+    - path: runs/ml10m-Pop
+      md5: 79f0ae9d7e027dcd9607c87fe641b746.dir
+      size: 32011416
+      nfiles: 5
+  ml10m-explicit@Bias:
+    cmd: python run-algo.py --splits data-split/ml10m -o runs/ml10m-Bias Bias
+    deps:
+    - path: data-split/ml10m
+      md5: 1b880ea0e6cd33460e516f34c15da528.dir
+      size: 4008858
+      nfiles: 5
+    outs:
+    - path: runs/ml10m-Bias
+      md5: 5bd29718539ce09f6954713a73baeccd.dir
+      size: 93037150
+      nfiles: 10
+  ml10m-explicit@IIE:
+    cmd: python run-algo.py --splits data-split/ml10m -o runs/ml10m-IIE IIE
+    deps:
+    - path: data-split/ml10m
+      md5: 1b880ea0e6cd33460e516f34c15da528.dir
+      size: 4008858
+      nfiles: 5
+    outs:
+    - path: runs/ml10m-IIE
+      md5: 69ad12861282f7cae86158a37710b245.dir
+      size: 99800658
+      nfiles: 10
+  ml10m-explicit@UUE:
+    cmd: python run-algo.py --splits data-split/ml10m -o runs/ml10m-UUE UUE
+    deps:
+    - path: data-split/ml10m
+      md5: 1b880ea0e6cd33460e516f34c15da528.dir
+      size: 4008858
+      nfiles: 5
+    outs:
+    - path: runs/ml10m-UUE
+      md5: 373ba97825fd8d2585c4333244215dac.dir
+      size: 95332322
+      nfiles: 10
+  ml10m-explicit@ALS:
+    cmd: python run-algo.py --splits data-split/ml10m -o runs/ml10m-ALS ALS
+    deps:
+    - path: data-split/ml10m
+      md5: 1b880ea0e6cd33460e516f34c15da528.dir
+      size: 4008858
+      nfiles: 5
+    outs:
+    - path: runs/ml10m-ALS
+      md5: e77645166737d13782cd31ed6371e02c.dir
+      size: 97299436
+      nfiles: 10
+  ml10m-implicit@III:
+    cmd: python run-algo.py --splits data-split/ml10m -o runs/ml10m-III III
+    deps:
+    - path: data-split/ml10m
+      md5: 1b880ea0e6cd33460e516f34c15da528.dir
+      size: 4008858
+      nfiles: 5
+    outs:
+    - path: runs/ml10m-III
+      md5: cd995b8c32ff66e1e47faa20937ca1c9.dir
+      size: 98620898
+      nfiles: 10
+  ml10m-implicit@IALS:
+    cmd: python run-algo.py --splits data-split/ml10m -o runs/ml10m-IALS IALS
+    deps:
+    - path: data-split/ml10m
+      md5: 1b880ea0e6cd33460e516f34c15da528.dir
+      size: 4008858
+      nfiles: 5
+    outs:
+    - path: runs/ml10m-IALS
+      md5: b56a8e20db6763ccf5f95026228d2876.dir
+      size: 101225639
+      nfiles: 10
+  ml25m-implicit@Pop:
+    cmd: python run-algo.py --no-predict --splits data-split/ml25m -o runs/ml25m-Pop
+      Pop
+    deps:
+    - path: data-split/ml25m
+      md5: 7e92758698890a67285bd0772603e1a3.dir
+      size: 13904111
+      nfiles: 5
+    outs:
+    - path: runs/ml25m-Pop
+      md5: 948abf0b4b87d3cb6edbaf68e73a59bc.dir
+      size: 354725114
+      nfiles: 5
+  ml25m-explicit@Bias:
+    cmd: python run-algo.py --splits data-split/ml25m -o runs/ml25m-Bias Bias
+    deps:
+    - path: data-split/ml25m
+      md5: 7e92758698890a67285bd0772603e1a3.dir
+      size: 13904111
+      nfiles: 5
+    outs:
+    - path: runs/ml25m-Bias
+      md5: 8276f1987caf8f877b9e043e5140ce42.dir
+      size: 571091952
+      nfiles: 10
+  ml25m-explicit@IIE:
+    cmd: python run-algo.py --splits data-split/ml25m -o runs/ml25m-IIE IIE
+    deps:
+    - path: data-split/ml25m
+      md5: 7e92758698890a67285bd0772603e1a3.dir
+      size: 13904111
+      nfiles: 5
+    outs:
+    - path: runs/ml25m-IIE
+      md5: 487beb7a9efa663ec0d6ff1184b1ee90.dir
+      size: 583823739
+      nfiles: 10
+  ml25m-explicit@UUE:
+    cmd: python run-algo.py --splits data-split/ml25m -o runs/ml25m-UUE UUE
+    deps:
+    - path: data-split/ml25m
+      md5: 7e92758698890a67285bd0772603e1a3.dir
+      size: 13904111
+      nfiles: 5
+    outs:
+    - path: runs/ml25m-UUE
+      md5: 5bb0499b874e4f3821fba8ed2c65ceb2.dir
+      size: 590149561
+      nfiles: 10
+  ml25m-explicit@ALS:
+    cmd: python run-algo.py --splits data-split/ml25m -o runs/ml25m-ALS ALS
+    deps:
+    - path: data-split/ml25m
+      md5: 7e92758698890a67285bd0772603e1a3.dir
+      size: 13904111
+      nfiles: 5
+    outs:
+    - path: runs/ml25m-ALS
+      md5: 9ae25b079ca5007f81005ece2868d5e7.dir
+      size: 583724737
+      nfiles: 10
+  ml25m-implicit@III:
+    cmd: python run-algo.py --no-predict --splits data-split/ml25m -o runs/ml25m-III
+      III
+    deps:
+    - path: data-split/ml25m
+      md5: 7e92758698890a67285bd0772603e1a3.dir
+      size: 13904111
+      nfiles: 5
+    outs:
+    - path: runs/ml25m-III
+      md5: 6f8337c6bd0f74786c161fb9a15410ed.dir
+      size: 520895812
+      nfiles: 5
+  ml25m-implicit@IALS:
+    cmd: python run-algo.py --no-predict --splits data-split/ml25m -o runs/ml25m-IALS
+      IALS
+    deps:
+    - path: data-split/ml25m
+      md5: 7e92758698890a67285bd0772603e1a3.dir
+      size: 13904111
+      nfiles: 5
+    outs:
+    - path: runs/ml25m-IALS
+      md5: d7c8bff4f80fa8b288eca32739f1b66a.dir
+      size: 535143320
+      nfiles: 5
+  ml1m-scores@III:
+    cmd: python compute-metrics.py ml1m III
+    deps:
+    - path: compute-metrics.py
+      md5: 1227ea4f023c8ba240d5081cbd50b1eb
+      size: 1937
+    - path: data-split/ml1m
+      md5: 6711bb5577ead59221f796a939cb89d3.dir
+      size: 4012507
+      nfiles: 50
+    - path: lkdemo/metrics.py
+      md5: 5a8d795d022634935553d9865a439e8c
+      size: 1078
+    - path: runs/ml1m-III
+      md5: de22b2c5c0b12b2eb1d0cb458e50ed73.dir
+      size: 607009150
+      nfiles: 50
+    outs:
+    - path: runs/ml1m-III-scores.parquet
+      md5: 9b1bc0e490e8d9ed45f11506296174e0
+      size: 1413834
+  ml1m-scores@Pop:
+    cmd: python compute-metrics.py ml1m Pop
+    deps:
+    - path: compute-metrics.py
+      md5: 1227ea4f023c8ba240d5081cbd50b1eb
+      size: 1937
+    - path: data-split/ml1m
+      md5: 6711bb5577ead59221f796a939cb89d3.dir
+      size: 4012507
+      nfiles: 50
+    - path: lkdemo/metrics.py
+      md5: 5a8d795d022634935553d9865a439e8c
+      size: 1078
+    - path: runs/ml1m-Pop
+      md5: 02809faf1ec6b0a15bc8ba64171a26b3.dir
+      size: 27049651
+      nfiles: 50
+    outs:
+    - path: runs/ml1m-Pop-scores.parquet
+      md5: 7cc1295e68de728f2f540237d5e9ffeb
+      size: 1395614
+  ml1m-scores@IALS:
+    cmd: python compute-metrics.py ml1m IALS
+    deps:
+    - path: compute-metrics.py
+      md5: 1227ea4f023c8ba240d5081cbd50b1eb
+      size: 1937
+    - path: data-split/ml1m
+      md5: 6711bb5577ead59221f796a939cb89d3.dir
+      size: 4012507
+      nfiles: 50
+    - path: lkdemo/metrics.py
+      md5: 5a8d795d022634935553d9865a439e8c
+      size: 1078
+    - path: runs/ml1m-IALS
+      md5: d1195babe6ba009df88d52ed15a328a3.dir
+      size: 611199746
+      nfiles: 50
+    outs:
+    - path: runs/ml1m-IALS-scores.parquet
+      md5: f27de3af3a63167967b4900d7c7f8402
+      size: 1584006
+  ml1m-scores@UUE:
+    cmd: python compute-metrics.py ml1m UUE
+    deps:
+    - path: compute-metrics.py
+      md5: 1227ea4f023c8ba240d5081cbd50b1eb
+      size: 1937
+    - path: data-split/ml1m
+      md5: 6711bb5577ead59221f796a939cb89d3.dir
+      size: 4012507
+      nfiles: 50
+    - path: lkdemo/metrics.py
+      md5: 5a8d795d022634935553d9865a439e8c
+      size: 1078
+    - path: runs/ml1m-UUE
+      md5: 1ecdc4f4d07657ad7270d423878e863e.dir
+      size: 573492520
+      nfiles: 100
+    outs:
+    - path: runs/ml1m-UUE-scores.parquet
+      md5: 3356d6466456813805346102a94ac2dc
+      size: 1279565
+  ml1m-scores@Bias:
+    cmd: python compute-metrics.py ml1m Bias
+    deps:
+    - path: compute-metrics.py
+      md5: 1227ea4f023c8ba240d5081cbd50b1eb
+      size: 1937
+    - path: data-split/ml1m
+      md5: 6711bb5577ead59221f796a939cb89d3.dir
+      size: 4012507
+      nfiles: 50
+    - path: lkdemo/metrics.py
+      md5: 5a8d795d022634935553d9865a439e8c
+      size: 1078
+    - path: runs/ml1m-Bias
+      md5: 8f2d8f27896a394605e4d269068302da.dir
+      size: 447226611
+      nfiles: 100
+    outs:
+    - path: runs/ml1m-Bias-scores.parquet
+      md5: bc9f064edc419ab35416842888fbcd3f
+      size: 1273811
+  ml1m-scores@IIE:
+    cmd: python compute-metrics.py ml1m IIE
+    deps:
+    - path: compute-metrics.py
+      md5: 1227ea4f023c8ba240d5081cbd50b1eb
+      size: 1937
+    - path: data-split/ml1m
+      md5: 6711bb5577ead59221f796a939cb89d3.dir
+      size: 4012507
+      nfiles: 50
+    - path: lkdemo/metrics.py
+      md5: 5a8d795d022634935553d9865a439e8c
+      size: 1078
+    - path: runs/ml1m-IIE
+      md5: 1ea04b36c859f5a872b8f6ccb9a7ced4.dir
+      size: 577659566
+      nfiles: 100
+    outs:
+    - path: runs/ml1m-IIE-scores.parquet
+      md5: 35e22da9a6189bc54a70a600a43771f1
+      size: 1293605
+  ml1m-scores@ALS:
+    cmd: python compute-metrics.py ml1m ALS
+    deps:
+    - path: compute-metrics.py
+      md5: 1227ea4f023c8ba240d5081cbd50b1eb
+      size: 1937
+    - path: data-split/ml1m
+      md5: 6711bb5577ead59221f796a939cb89d3.dir
+      size: 4012507
+      nfiles: 50
+    - path: lkdemo/metrics.py
+      md5: 5a8d795d022634935553d9865a439e8c
+      size: 1078
+    - path: runs/ml1m-ALS
+      md5: e6d33364ea4d310f3c4e4c00cc040012.dir
+      size: 572514912
+      nfiles: 100
+    outs:
+    - path: runs/ml1m-ALS-scores.parquet
+      md5: f8de0a1f47f689e09266da665047d14e
+      size: 1281950

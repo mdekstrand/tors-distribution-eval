@@ -1,0 +1,9 @@
+project:
+  title: "tors-distributions-example"
+
+keep-ipynb: true
+
+formats:
+  html:
+    theme: journal
+  pdf: default

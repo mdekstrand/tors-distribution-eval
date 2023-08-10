@@ -1,0 +1,80 @@
+---
+title: Data Set Descriptive Statistics
+jupyter:
+  jupytext:
+    formats: 'ipynb,qmd'
+    text_representation:
+      extension: .qmd
+      format_name: quarto
+      format_version: '1.0'
+      jupytext_version: 1.14.5
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
+---
+
+
+This notebook just has basic descriptive stats of the data set.
+
+
+## Setup
+
+Import modules:
+
+```{python}
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+```
+
+```{python}
+from lenskit.datasets import ML1M
+from lkdemo.plotutils import *
+```
+
+```{python}
+ml = ML1M('data/ml-1m/')
+```
+
+```{python}
+fig_dir = init_figs('DataDescription')
+print(fig_dir)
+```
+
+## Basic Shape and Size
+
+```{python}
+ratings = ml.ratings
+ratings.info()
+```
+
+How much data?
+
+```{python}
+pd.Series({
+    'ratings': len(ratings),
+    'users': ratings['user'].nunique(),
+    'items': ratings['item'].nunique(),
+})
+```
+
+## User Demographics
+
+```{python}
+users = ml.users
+users.info()
+```
+
+Distribution of genders:
+
+```{python}
+sns.countplot(users, x='gender')
+```
+
+Distribution of ages:
+
+```{python}
+sns.countplot(users, x='age')
+```

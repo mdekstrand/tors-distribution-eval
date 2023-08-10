@@ -1,0 +1,10 @@
+stages:
+  split-ml1m:
+    cmd: python split-data.py -o data-split/ml1m -u 1500 -R 50 ml1m
+    wdir: ..
+    deps:
+    - data/ml-1m/ratings.dat
+    outs:
+    - data-split/ml1m
+    params:
+    - random.seed

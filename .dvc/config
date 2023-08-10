@@ -1,0 +1,9 @@
+[core]
+    remote = abyss
+['remote "abyss"']
+    url = s3://tors-distributions
+    endpointurl = https://abyss.boisestate.edu
+    region = garage
+    profile = piret-minio
+['remote "michael"']
+    url = webdavs://alcove.ekstrandom.net/dvc-repos/tors-distributions

@@ -1,0 +1,8 @@
+# This pipeline defines the data extraction stages.
+stages:
+  ml-1m:
+    cmd: python -m zipfile -e ml-1m.zip .
+    deps:
+    - ml-1m.zip
+    outs:
+    - ml-1m/

@@ -1,0 +1,25 @@
+# This pipeline defines top-level output stages.
+stages:
+  report:
+    foreach:
+    - UserDists
+    - ItemDists
+    - Repitition
+    - DataDescription
+    do:
+      cmd: quarto render ${item}.qmd --to html
+      deps:
+      - ${item}.qmd
+      - _quarto.yml
+      - runs/ml1m-Pop
+      - runs/ml1m-Pop-scores.parquet
+      - runs/ml1m-III
+      - runs/ml1m-III-scores.parquet
+      - runs/ml1m-IALS
+      - runs/ml1m-IALS-scores.parquet
+      outs:
+      - ${item}.ipynb:
+          cache: false
+      - ${item}.html
+      - ${item}_files/
+      - figures/${item}/

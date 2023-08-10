@@ -1,0 +1,16 @@
+/ml100k-*
+/ml25m-*
+/ml1m-Pop
+/ml1m-Bias
+/ml1m-IIE
+/ml1m-UUE
+/ml1m-ALS
+/ml1m-III
+/ml1m-IALS
+/ml1m-III-scores.parquet
+/ml1m-Pop-scores.parquet
+/ml1m-IALS-scores.parquet
+/ml1m-UUE-scores.parquet
+/ml1m-Bias-scores.parquet
+/ml1m-IIE-scores.parquet
+/ml1m-ALS-scores.parquet

@@ -1,0 +1,690 @@
+---
+title: Distribution Case Study — User Distributions
+jupyter:
+  jupytext:
+    formats: 'ipynb,qmd:quarto'
+    text_representation:
+      extension: .qmd
+      format_name: quarto
+      format_version: '1.0'
+      jupytext_version: 1.14.6
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
+---
+
+This notebook demonstrates several types of distributional evaluation for a basic recommendation experiment on the MovieLens 1M data set.  We are using 1M instead of one of the newer and larger ones so that we have user demographics for the disaggregated segments of the evaluation.
+
+## Environment and Data
+
+### Software Environment
+
+We're going to start by importing the software packages we need. Python stdlib packages:
+
+```{python}
+from pathlib import Path
+```
+
+PyData packages:
+
+```{python}
+import pandas as pd
+import numpy as np
+import xarray as xa
+import seaborn as sns
+import matplotlib.pyplot as plt
+import scipy.stats as stats
+import scipy.special as sps
+import plotnine as pn
+```
+
+LensKit packages:
+
+```{python}
+from lenskit import topn
+from lkdemo.metrics import rbp
+```
+
+Local code:
+
+```{python}
+from lkdemo.plotutils import *
+from eval_tables import EvalTable
+from IPython.display import HTML
+```
+
+Set up progress and logging output:
+
+```{python}
+from tqdm.auto import tqdm
+import logging
+import lenskit.util
+
+_log = logging.getLogger('notebook')
+lenskit.util.log_to_notebook()
+tqdm.pandas()
+```
+
+Where do we want output?
+
+```{python}
+fig_dir = init_figs('UserDists')
+print(fig_dir)
+```
+
+### Loading Data
+
+Now let's load the MovieLens data and recommendation outputs.
+
+First the test data:
+
+```{python}
+test_dir = Path('data-split/ml1m/')
+test = pd.read_parquet(test_dir / 'test-1.parquet')
+test.head()
+```
+
+Now let's load the user data:
+
+```{python}
+ml_dir = Path('data/ml-1m/')
+users = pd.read_table(ml_dir / 'users.dat', sep='::', names=['user', 'gender', 'age', 'occ', 'zip'], engine='python')
+users.set_index('user', inplace=True)
+users.head()
+```
+
+And the recommendations:
+
+```{python}
+run_dir = Path('runs/')
+recs = {}
+for rf in run_dir.glob('ml1m-*/recs-1.parquet'):
+    rdname = rf.parent.name
+    algo = rdname[len('ml1m-'):]
+    recs[algo] = pd.read_parquet(rf)
+recs = pd.concat(recs, names=['algo'])
+recs = recs.reset_index('algo').reset_index(drop=True)
+recs.algo = recs.algo.astype('category').cat.rename_categories({'III': 'IKNN'})
+recs.head()
+```
+
+List of algorithms:
+
+```{python}
+algos = ['IALS', 'IKNN', 'Pop']
+```
+
+And some quick stats.
+
+```{python}
+n_users = recs['user'].nunique()
+n_users
+```
+
+```{python}
+g_nu = users.loc[recs['user'].unique(), 'gender'].value_counts()
+g_nu
+```
+
+### Computing Metrics
+
+Now that the recommendations are loaded, let's compute some top-*N* performance metrics:
+
+```{python}
+rla = topn.RecListAnalysis()
+rla.add_metric(rbp, k=1000)
+rla.add_metric(rbp, k=1000, patience=0.5, name='rbp05')
+rla.add_metric(topn.hit, k=1000)
+rla.add_metric(topn.hit, name='hit10', k=10)
+rla.add_metric(topn.hit, name='hit20', k=20)
+rla.add_metric(topn.ndcg, k=1000)
+rla.add_metric(topn.recip_rank, k=1000)
+```
+
+```{python}
+user_scores = rla.compute(recs, test, include_missing=True)
+user_scores.head()
+```
+
+```{python}
+user_scores.drop(columns=['nrecs', 'ntruth'], inplace=True)
+user_scores.fillna(0, inplace=True)
+```
+
+```{python}
+agg_names = {
+    'hit': 'HR',
+    'hit10': 'HR@10',
+    'hit20': 'HR@20',
+    'ndcg': 'nDCG',
+    'recip_rank': 'MRR',
+    'rbp': 'RBP',
+}
+```
+
+## First-Order Analysis
+
+What results would we display in a traditional analysis?
+
+Let's start with a table of mean scores:
+
+```{python}
+algo_scores = user_scores.groupby('algo').mean()
+algo_scores.rename(columns=agg_names, inplace=True)
+as_styled = algo_scores.style.highlight_max(props='font-weight: bold')
+as_styled.to_latex(fig_dir / 'metric-point-estimates.tex')
+as_styled
+```
+
+Let's significance-test these.
+
+```{python}
+pd.Series({
+    m: stats.ttest_rel(user_scores.loc['IALS', m], user_scores.loc['IKNN', m]).pvalue
+    for m in user_scores.columns
+})
+```
+
+We can also show this as a bar chart with confidence intervals (here computed by Seaborn as a 95% bootstrapped CI):
+
+```{python}
+us_tall = user_scores.reset_index().melt(id_vars=['algo', 'user'], var_name='metric')
+us_tall.head()
+```
+
+```{python}
+us_tall['metric'] = us_tall['metric'].astype('category').cat.rename_categories(agg_names)
+```
+
+```{python}
+sns.catplot(us_tall, x='value', y='algo', row='metric', kind='bar', sharex=False, color='steelblue')
+plt.ylabel('Score')
+plt.show()
+```
+
+## Metric Distributions over Users
+
+Let's look at the distribution over users of metrics where that makes sense:
+
+```{python}
+sns.displot(user_scores, x='rbp', row='algo', kde=True, height=2, aspect=2.5)
+plt.show()
+```
+
+Better layout with good plotting tools. Prepare data:
+
+```{python}
+us_lim = us_tall.loc[us_tall['metric'].isin(['RBP', 'nDCG', 'MRR'])].copy()
+us_lim['metric'] = us_lim['metric'].cat.remove_unused_categories()
+us_lim['metric'] = us_lim['metric'].cat.rename_categories({'MRR': 'RR'})
+```
+
+Compute aggregates:
+
+```{python}
+us_agg = us_lim.groupby(['algo', 'metric'])['value'].agg(['mean', 'median'])
+us_agg.columns.name = 'summary'
+us_agg = us_agg.stack().to_frame('value').reset_index()
+```
+
+And plot:
+
+```{python}
+make_plot(
+    us_lim,
+    pn.aes(x='value'),
+    pn.geom_vline(pn.aes(xintercept='value', linetype='summary', color='summary'), us_agg),
+    pn.geom_histogram(pn.aes(y=pn.after_stat('density')), fill='steelblue'),
+    pn.stat_density(color='purple'),
+    pn.facet_grid('algo ~ metric'),
+    width=7,
+    height=4,
+    file='user-score-dist.png',
+)
+```
+
+And let's show that inline:
+
+```{python}
+tw = EvalTable(user_scores, 'algo', 'rbp', progress=tqdm)
+tw.add_stat('Mean', np.mean, ci=True)
+tw.add_quantiles(['10%ile', 'Median', '90%ile'], [0.1, 0.5, 0.9], ci=True)
+tw_fn = fig_dir / 'cf-example.tex'
+tw_fn.write_text(tw.latex_table())
+# HTML(tw.html_table())
+```
+
+## Comparison Distributions
+
+Let's compute some comparisons!
+
+We'll start with an nDCG pairplot.
+
+```{python}
+wide_ndcg = user_scores['rbp'].unstack(0)
+wide_rr = user_scores['recip_rank'].unstack(0)
+wide_ndcg.head()
+```
+
+```{python}
+imp_ndcg = wide_ndcg[algos]
+```
+
+```{python}
+imp_ndcg.count()
+```
+
+```{python}
+def diff_cdf(x, y, **kwargs):
+    diff = y - x
+    plt.axvline(0, color='silver')
+    plt.axhline(0.5, color='silver')
+    sns.ecdfplot(diff, color='firebrick')
+```
+
+```{python}
+def diff_hist(x, y, **kwargs):
+    diff = y - x
+    sns.histplot(diff, color='slategrey', stat='probability')
+    plt.axvline(np.median(diff), color='darkviolet')
+```
+
+```{python}
+g = sns.PairGrid(imp_ndcg)
+g.map_upper(diff_cdf)
+g.map_lower(diff_hist)
+plt.show()
+```
+
+```{python}
+pairs = [('IALS', 'IKNN'), ('IALS', 'Pop'), ('IKNN', 'Pop')]
+rel_eff = pd.DataFrame({
+    f'{a1} vs. {a2}': wide_ndcg[a1] - wide_ndcg[a2]
+    for (a1, a2) in pairs
+})
+rel_eff.describe()
+```
+
+```{python}
+re_tall = rel_eff.melt(var_name='Comp', value_name='RBP')
+re_tall.head()
+```
+
+```{python}
+make_plot(
+    re_tall,
+    pn.aes(x='RBP'),
+    pn.stat_ecdf(),
+    pn.facet_grid('~ Comp'),
+    pn.ylab('CDF'),
+    pn.xlab('Difference in RBP'),
+    width=7, height=2.5,
+    file='rbp-diff-dist.png',
+)
+```
+
+## Demographic Disaggregation
+
+Let's look now at demographic info - what's the user distribution of demographics?
+
+```{python}
+fig, axs = plt.subplots(1, 2)
+sns.countplot(users, x='gender', ax=axs[0])
+sns.countplot(users, x='age', ax=axs[1])
+plt.show()
+```
+
+
+```{python}
+usdemo = user_scores.reset_index().join(users, on='user')
+usdemo.head()
+```
+
+Now, what's the RBP by gender?
+
+```{python}
+sns.catplot(usdemo, x='algo', y='rbp', hue='gender', kind='bar')
+plt.show()
+```
+
+```{python}
+gender_rbp = usdemo.groupby(['algo', 'gender'])['rbp'].agg(['mean', 'sem'])
+gender_rbp['ci_hi'] = gender_rbp['mean'] + 1.96 * gender_rbp['sem']
+gender_rbp['ci_lo'] = gender_rbp['mean'] - 1.96 * gender_rbp['sem']
+gender_rbp
+```
+
+```{python}
+make_plot(
+    gender_rbp.reset_index(),
+    pn.aes(x='algo', y='mean', ymin='ci_lo', ymax='ci_hi', fill='gender'),
+    pn.geom_bar(stat='identity', position='dodge'),
+    pn.geom_errorbar(width=0.2, position=pn.position_dodge(1)),
+    pn.scale_fill_brewer('qual', 'Dark2'),
+    pn.ylab('RBP'),
+    pn.xlab('Algorithm'),
+    file='rbp-gender.png',
+    width=4.5,
+    height=3,
+)
+```
+
+We can see that the best algorithm - IALS - has better gender parity than less-competitive algorithms!
+
+T-test for IALS improving over IKNN:
+
+```{python}
+usdemo_i = usdemo.set_index(['algo', 'gender', 'user'])
+stats.ttest_rel(usdemo_i.loc[('IALS', 'F'), 'rbp'], usdemo_i.loc[('IKNN', 'F'), 'rbp'])
+```
+
+
+Let's look by age:
+
+```{python}
+sns.catplot(usdemo, x='age', y='rbp', col='algo', kind='bar')
+plt.show()
+```
+
+Now, let's compare improvements by demographic.
+
+```{python}
+usdemo
+```
+
+```{python}
+wide_demo = usdemo.pivot(index='user', columns='algo', values='rbp').join(users)
+wide_demo
+```
+
+```{python}
+wide_demo['IKNN-Pop'] = wide_demo['IKNN'] - wide_demo['Pop']
+wide_demo['IALS-Pop'] = wide_demo['IALS'] - wide_demo['Pop']
+wide_demo['IALS-IKNN'] = wide_demo['IALS'] - wide_demo['IKNN']
+```
+
+```{python}
+sns.displot(wide_demo, x='IKNN-Pop', hue='gender', kind='ecdf')
+plt.show()
+```
+
+```{python}
+sns.displot(wide_demo, x='IALS-Pop', hue='gender', kind='ecdf')
+plt.show()
+```
+
+```{python}
+sns.displot(wide_demo, x='IALS-IKNN', hue='gender', kind='ecdf')
+plt.show()
+```
+
+```{python}
+make_plot(
+    wide_demo,
+    pn.aes(x='IALS-IKNN', color='gender'),
+    pn.stat_ecdf(),
+    pn.scale_color_brewer('qual', 'Dark2'),
+    pn.xlab('Improvement of IALS over IKNN'),
+    pn.ylab('Cum. Frac. Users'),
+    file='rbp-gender-improve-cdf.png',
+    width=4.5,
+    height=3,
+)
+```
+
+Because the blue curves are (slightly) to the right of the orange curves, we can see that the improvement is slightly *better*, on average, for female uses than for male users!  Let's look at a box plot for slightly easier comparison.
+
+```{python}
+sns.catplot(wide_demo, x='gender', y='IALS-IKNN', kind='box')
+plt.show()
+```
+
+Now, when we combine this difference analysis with the overall performance analysis, we can see that conclude that the IALS algorithm *closes the gap* in performance w.r.t. the III algorithm, but does not eliminate it.
+
+## Uncertain Browsing Models
+
+We see above that changing the browsing model actually changes the ordering of the two top systems.
+
+Let's look at how RBP changes with browsing model parameter.  We're going to need to decompose the RBP metric (fortunately it's amenable to that).
+
+Start by combining runs with relevance:
+
+```{python}
+jr = pd.merge(recs, test[['user', 'item', 'rating']], on=['user', 'item'], how='left')
+jr['good'] = jr['rating'].notnull()
+jr
+```
+
+For computation, we only need the *good* items, since non-relevant items don't contribute to RBP.  Grab the user lists so we have them:
+
+```{python}
+rlists = jr[['algo', 'user']].drop_duplicates(ignore_index=True)
+rlists
+```
+
+Now get the good items:
+
+```{python}
+rgood = jr[jr['good']]
+rgood
+```
+
+```{python}
+rg_ranks = xa.DataArray(rgood['rank'].astype('f4'), dims=['eevt'], name='rank')
+rg_ranks
+```
+
+We're going to start by looking at how RBP changes with the parameter value. Let's get some points, evenly spaced, with specified resolution and no endpoints:
+
+```{python}
+p_res = 0.01
+bm_pts = np.linspace(0, 1, int(1 / p_res) + 1)[1:-1]
+bm_pts = xa.DataArray(bm_pts, coords={'patience': bm_pts})
+bm_pts
+```
+
+Now we can compute the log of the RBP contribution of each item, for each point value:
+
+```{python}
+log_eerbp = np.log(bm_pts) * rg_ranks
+log_eerbp
+```
+
+Now, we want to compute the RBPs for each algorithm. The easy way to do this will be to group by the algorithm, sum (after exponentiating), and divide by the number of users.
+
+- RBP for a user is the sum of individual doc RBPs
+- RBP for a user with no relevant docs is 0
+- RBP for the system is the mean of the per-user RBPs
+
+Let's go!  Put this in an appropriately-alligned xarray:
+
+```{python}
+algo_xa = xa.DataArray(rgood['algo'], dims=['eevt'])
+algo_xa
+```
+
+```{python}
+def _log_rbp(x):
+    dim = x.dims[0]
+    # sum the contributions
+    lsum = sps.logsumexp(x, axis=1)
+    sxa = xa.DataArray(lsum, coords={dim: x.coords[dim]})
+    # multiply by (1 - patience)
+    sxa += np.log(1 - bm_pts)
+    return sxa
+log_rbp = log_eerbp.groupby(algo_xa).map(_log_rbp)
+# divide by number of users
+log_rbp -= np.log(n_users)
+log_rbp
+```
+
+This array is now set up with what we need. Let's turn it into a data frame, and we can start plotting.
+
+```{python}
+patience_rbp = np.exp(log_rbp).to_pandas().stack().reset_index(name='RBP')
+patience_rbp
+```
+
+```{python}
+make_plot(
+    patience_rbp,
+    pn.aes(x='patience', y='RBP', color='algo', linetype='algo'),
+    pn.geom_line(),
+    pn.xlab('Patience'),
+    file='rbp-uncertain-response.png',
+    width=4.5,
+    height=4,
+)
+```
+
+This shows us how performacne changes as the unknown parameter changes. For lower patience parameters (higher weight at the top of the list), III is outperforming, but for higher parameters IALS starts to win. This suggests that III is doing a better job of putting *something* relevant high in the list (consistent with its good performance on MRR), but IALS is better at putting *multiple* items at reasonable places in the list (consistent with its better performance on nDCG).
+
+### Probabilistic Uncertainty
+
+Not all patience values are equally likely, however. We can take a Bayesian approach and encode our beliefs or current knowledge over the different parameter values as a probability distribution, and use that to derive a distribution of RBP values.
+
+So let's derive a Beta distribution whose mode is our original parameter value (0.8), but has some diffusion:
+
+```{python}
+tgt_mode = 0.8
+alpha = 5
+beta = (1 - tgt_mode) * alpha + (2 * tgt_mode - 1)
+beta /= tgt_mode
+```
+
+```{python}
+bm_dist = stats.beta(alpha, beta)
+bm_dist.mean()
+```
+
+```{python}
+alpha, beta
+```
+
+```{python}
+xs = np.linspace(0, 1, 1001)
+ys = bm_dist.pdf(xs)
+make_plot(
+    pd.DataFrame({'Patience': xs, 'Density': ys}),
+    pn.aes(x='Patience', y='Density'),
+    pn.geom_line(),
+    file='rbp-uncertain-prior.png',
+    width=4.5,
+    height=2,
+)
+```
+
+Now, to compute the patience probabilities, we need to weight each value. We can do this by multipling the PDF by the resolution at that point.
+
+```{python}
+patience_rbp['weight'] = bm_dist.pdf(patience_rbp['patience']) * p_res
+patience_rbp
+```
+
+We can now use these to compute cumulative distributions.
+
+```{python}
+prbp_cdf = patience_rbp.groupby('algo').apply(lambda df: df.sort_values('RBP')['weight'].cumsum())
+prbp_cdf.reset_index('algo', inplace=True, drop=True)
+patience_rbp['cdf'] = prbp_cdf
+patience_rbp
+```
+
+```{python}
+make_plot(
+    patience_rbp,
+    pn.aes(x='RBP', y='cdf', color='algo'),
+    pn.geom_line(),
+    pn.ylab('CDF'),
+    file='rbp-uncertain-post.png',
+    width=4.5,
+    height=2,
+)
+```
+
+### Change and Gender
+
+Now - we can *combine* this. We can, for example, disaggregate the performance by user gender.
+
+```{python}
+rgood = rgood.assign(gender=users.loc[rgood['user'], 'gender'].values)
+rgood.head()
+```
+
+```{python}
+agxa = xa.DataArray([f'{t.algo}/{t.gender}' for t in rgood.itertuples()], dims=['eevt'])
+agxa
+```
+
+```{python}
+ag_log_rbp = log_eerbp.groupby(agxa).map(_log_rbp)
+```
+
+Now we're going to split the group back out.
+
+```{python}
+ag_shards = [
+    [ag_log_rbp.sel(group=f'{algo}/{gender}').values for gender in ['M', 'F']]
+    for algo in algos
+]
+ag_log_rbp = xa.DataArray(
+    ag_shards,
+    dims=['algo', 'gender', 'patience'],
+    coords={
+        'algo': algos,
+        'gender': ['M', 'F'],
+        'patience': ag_log_rbp.coords['patience']
+    }
+)
+ag_log_rbp
+```
+
+And we're going to divide by the *per-gender* user counts:
+
+```{python}
+ag_log_rbp -= np.log(xa.DataArray(g_nu, dims=['gender']))
+```
+
+```{python}
+ag_rbp = np.exp(ag_log_rbp).to_dataframe('RBP').reset_index()
+ag_rbp
+```
+
+Now we can plot the curves:
+
+```{python}
+make_plot(
+    ag_rbp,
+    pn.aes(x='patience', y='RBP', color='gender', linetype='gender'),
+    pn.geom_line(),
+    pn.facet_grid('~ algo'),
+    pn.xlab('Patience'),
+    file='rbp-uncertain-gender-response.png',
+    width=9,
+    height=3,
+)
+```
+
+The Bayes thing:
+
+```{python}
+ag_rbp['weight'] = bm_dist.pdf(ag_rbp['patience']) * p_res
+prbp_cdf = ag_rbp.groupby(['algo', 'gender']).apply(lambda df: df.sort_values('RBP')['weight'].cumsum())
+prbp_cdf.reset_index(['algo', 'gender'], inplace=True, drop=True)
+ag_rbp['cdf'] = prbp_cdf
+ag_rbp
+```
+
+```{python}
+make_plot(
+    ag_rbp,
+    pn.aes(x='RBP', y='cdf', color='gender'),
+    pn.geom_line(),
+    pn.facet_grid('~ algo'),
+    pn.ylab('CDF'),
+    file='rbp-uncertain-gender-post.png',
+    width=4.5,
+    height=2,
+)
+```
